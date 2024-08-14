@@ -7,7 +7,7 @@ public class SerializerTest {
     public void testSerialize(){
         Serializer serializer = new Serializer();
         String serialized_text = serializer.serialize("GET HELLO");
-        String expected_serialized_test = "*2\\r\\n$3\\r\\nGET\\r\\n$5\\r\\nHELLO\\r\\n";
+        String expected_serialized_test = "*2\r\n$3\r\nGET\r\n$5\r\nHELLO\r\n";
         assertEquals(expected_serialized_test, serialized_text);
     }
 }

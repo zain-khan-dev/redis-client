@@ -1,9 +1,13 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.net.Socket;
 
 public class RedisClient {
 
     Socket socket = null;
+    static final Logger logger = LoggerFactory.getLogger(RedisClient.class);
     public RedisClient(String host, int port){
         this.socket = RedisSocket.getSocketConnection(host, port);
     }
@@ -14,8 +18,7 @@ public class RedisClient {
             dos.writeBytes(serializedCommand);
         }
         catch(IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to send data to redis server" + e.getMessage());
+            logger.error("Failed to send data to redis server {}", e.getMessage());
         }
     }
     public String receiveData(){
@@ -24,8 +27,7 @@ public class RedisClient {
             return readDataFromSocket(reader);
         }
         catch(IOException e) {
-            e.printStackTrace();
-            System.out.println("Failed to read data from redis server" + e.getMessage());
+            logger.error("Failed to read data from redis server {}", e.getMessage());
         }
         return "";
     }
@@ -33,11 +35,11 @@ public class RedisClient {
     private String readDataFromSocket(BufferedReader reader) throws IOException {
         char firstChar = (char)reader.read();
         String result = "";
-        if(firstChar == '+' || firstChar == ':'){
+        if(firstChar == '+' || firstChar == ':' || firstChar == '-'){
             result = reader.readLine();
         }
         else if(firstChar == '$'){
-            result =  reader.readLine() +"\r\n"+ reader.readLine();
+            result =  reader.readLine() +"\r\n";
         }
         else if(firstChar == '*'){
             int element = Integer.parseInt(reader.readLine().split("\\*")[1]);

@@ -1,3 +1,6 @@
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -5,6 +8,7 @@ import java.net.Socket;
 public class RedisSocket {
 
     private static Socket socket = null;
+    public static Logger logger = LoggerFactory.getLogger(RedisSocket.class);
 
     private RedisSocket(){
     }
@@ -16,7 +20,7 @@ public class RedisSocket {
                 socket.connect(new InetSocketAddress(port,host));
             }
             catch(IOException e){
-                System.out.println("Could not connect to Redis Server");
+                logger.error("Failed to connect to redis server {}", e.getMessage());
                 throw new RuntimeException(e);
             }
         }
