@@ -1,3 +1,5 @@
+package redis_socket;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,11 +15,11 @@ public class RedisSocket {
     private RedisSocket(){
     }
 
-    public static Socket getSocketConnection(String port, int host){
+    public static Socket getSocketConnection(String host, int port){
         if(socket == null){
             try{
                 socket = new Socket();
-                socket.connect(new InetSocketAddress(port,host));
+                socket.connect(new InetSocketAddress(host, port));
             }
             catch(IOException e){
                 logger.error("Failed to connect to redis server {}", e.getMessage());
@@ -26,4 +28,8 @@ public class RedisSocket {
         }
         return socket;
     }
+
+    
+
+
 }
