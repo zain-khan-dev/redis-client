@@ -13,10 +13,8 @@ public class RedisDataWriter {
 
     public void sendData(String data) {
         try {
-            System.out.println("The data being sent is " + data);
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(data.getBytes());
-            System.out.println("Data succesfully written");
         } catch (IOException e) {
             e.printStackTrace();
         }

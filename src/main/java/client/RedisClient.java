@@ -9,6 +9,8 @@ import reader.RedisDataReader;
 import redis_socket.RedisSocket;
 
 import java.net.Socket;
+import java.util.List;
+import java.util.Map;
 
 public class RedisClient {
     Socket socket = null;
@@ -26,7 +28,24 @@ public class RedisClient {
         return new SimpleString(this.reader, this.writer).get(key);
     }
 
-    public String put(String key, String value){
-        return new SimpleString(this.reader, this.writer).put(key, value);
+    public String set(String key, String value){
+        return new SimpleString(this.reader, this.writer).set(key, value);
     }
+
+    public String del(String key){
+        return new SimpleString(this.reader, this.writer).del(key);
+    }
+
+    public String mset(Map<String, String>mp){
+        return new SimpleString(this.reader, this.writer).mset(mp);
+    }
+
+    public String mset(List<String>args){
+        return new SimpleString(this.reader, this.writer).mset(args);
+    }
+
+    public long incr(String key){
+        return new SimpleString(this.reader, this.writer).incr(key);
+    }
+
 }

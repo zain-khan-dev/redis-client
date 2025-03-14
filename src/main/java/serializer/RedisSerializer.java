@@ -1,5 +1,7 @@
 package serializer;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,4 +21,26 @@ public class RedisSerializer {
         }
         return serialized_command.toString();
     }
+
+    public static String serialize(String commandName, List<String>args){
+        StringBuilder serializedCommand = new StringBuilder();
+        serializedCommand.append("*"); // start of the array
+        int numComponents = args.size() + 1; // extra for commandname;
+        serializedCommand.append(numComponents);
+        serializedCommand.append(CRLF);
+        serializedCommand.append("$").append(commandName.length());
+        serializedCommand.append(CRLF);
+        serializedCommand.append(commandName);
+        serializedCommand.append(CRLF);
+        for(String argument:args){
+            int length = argument.length();
+            serializedCommand.append("$");
+            serializedCommand.append(length);
+            serializedCommand.append(CRLF);
+            serializedCommand.append(argument);
+            serializedCommand.append(CRLF);
+        }
+        return serializedCommand.toString();
+    }
+
 }

@@ -1,43 +1,41 @@
 package reader;
+
+
 import java.net.Socket;
-import java.io.BufferedInputStream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
+import exception.InvalidRedisCommandException;
+import serializer.RedisSerializer;
 
 public class RedisDataReader {
-    
+
+
+    static Logger logger = LoggerFactory.getLogger(RedisDataReader.class);
     private Socket socket;
 
     public RedisDataReader(Socket socket){
-        this.socket  = socket;
+        this.socket = socket;
     }
 
 
-    public String receiveData() {
-        try{
-            System.out.println("Starting data read");
+    public String readSimpleString() {
+        
+        try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(this.socket.getInputStream()));
-            String currLine = reader.readLine();
-            if(currLine.charAt(0) == '+'){ // simple string parse
-                return currLine;
+            char firstByte = (char)reader.read();
+            if(firstByte == '-'){
+                logger.error("This is an error from redis", reader.readLine());
+                return "";
             }
-            else
-            if(currLine.charAt(0) == '-') // error data parsing
-            {
-                return currLine;
-            }
-            else{
-                currLine = reader.readLine();
-            }
-            System.out.println("Finished data reading " + currLine);
-            
-            return currLine;
+            return reader.readLine();
         }
-        catch(IOException exception){
-            System.out.println(exception);
+        catch(IOException ex){
+            logger.error("Redis simple string input interrupted ", ex);
             return "";
         }
     }
