@@ -64,4 +64,10 @@ public class SimpleString {
         return Long.valueOf(this.redisReader.readSimpleString());
     }
 
+    public long incrBy(String key, int incrVal){
+        String serializedCommand = RedisSerializer.serialize("INCRBY", List.of(key, String.valueOf(incrVal)));
+        this.redisWriter.sendData(serializedCommand);
+        return Long.valueOf(this.redisReader.readSimpleString());
+    }
+
 }
