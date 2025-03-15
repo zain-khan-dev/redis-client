@@ -72,6 +72,8 @@ public class RedisClient {
         return this.reader.readInteger();
     }
 
+    // List Operations
+
     public int lpush(String key, List<String>values){
         List<String>args = new ArrayList<>();
         args.add(key);
@@ -118,6 +120,38 @@ public class RedisClient {
     public String ltrim(String key, int start, int stop){
         this.executeCommand("LTRIM", List.of(key, String.valueOf(start), String.valueOf(stop)));
         return this.reader.readSimpleString();
+    }
+
+
+    // Set Operations
+
+    public int sadd(String key, List<String>members){
+        List<String>args = new ArrayList<>(List.of(key));
+        args.addAll(members);
+        this.executeCommand("SADD", args);
+        return this.reader.readInteger();
+    }
+
+    public int srem(String key, List<String>members){
+        List<String>args = new ArrayList<>(List.of(key));
+        args.addAll(members);
+        this.executeCommand("SREM", args);
+        return this.reader.readInteger();
+    }
+
+    public boolean sismember(String key, String command){
+        this.executeCommand("SISMEMBER", List.of(key, command));
+        return this.reader.readInteger() == 1;
+    }
+
+    public List<String> sinter(List<String>keys){
+        this.executeCommand("SINTER", keys);
+        return this.reader.readList();
+    }
+
+    public int scard(String key){
+        this.executeCommand("SCARD", List.of(key));
+        return this.reader.readInteger();
     }
 
 }
