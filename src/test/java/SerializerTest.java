@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test;
 
-import serializer.RedisSerializer;
+import serde.RedisSerializer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,4 +1,4 @@
-package serializer;
+package serde;
 
 import java.util.List;
 

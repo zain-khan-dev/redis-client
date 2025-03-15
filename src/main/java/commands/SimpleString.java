@@ -1,12 +1,11 @@
 package commands;
 
-import serializer.RedisSerializer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import reader.RedisDataReader;
+import serde.RedisSerializer;
 import writer.RedisDataWriter;
 
 public class SimpleString {
