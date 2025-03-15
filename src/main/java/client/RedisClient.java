@@ -13,6 +13,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class RedisClient {
 
@@ -132,7 +133,21 @@ public class RedisClient {
         return this.reader.readInteger();
     }
 
+    public int sadd(String key, Set<String>members){
+        List<String>args = new ArrayList<>(List.of(key));
+        args.addAll(members);
+        this.executeCommand("SADD", args);
+        return this.reader.readInteger();
+    }
+
     public int srem(String key, List<String>members){
+        List<String>args = new ArrayList<>(List.of(key));
+        args.addAll(members);
+        this.executeCommand("SREM", args);
+        return this.reader.readInteger();
+    }
+
+    public int srem(String key, Set<String>members){
         List<String>args = new ArrayList<>(List.of(key));
         args.addAll(members);
         this.executeCommand("SREM", args);
@@ -153,5 +168,34 @@ public class RedisClient {
         this.executeCommand("SCARD", List.of(key));
         return this.reader.readInteger();
     }
+
+    // hash operations
+
+    public int hset(String key, String field, String value){
+        this.executeCommand("HSET", List.of(key, field, value));
+        return this.reader.readInteger();
+    }
+
+    public String hget(String key, String field){
+        this.executeCommand("HSET", List.of(key, field));
+        return this.reader.readBulkString();
+    }
+
+    public List<String> hmget(String key, List<String>fields){
+        List<String>args = new ArrayList<>(List.of(key));
+        args.addAll(fields);
+        this.executeCommand("HMGET", args);
+        return this.reader.readList();
+    }
+
+
+    public int hincrby(String key, String field, int increment){
+        List<String>args = new ArrayList<>(List.of(key, field, String.valueOf(increment)));
+        this.executeCommand("HINCRBY", args);
+        return this.reader.readInteger();
+    }
+
+
+
 
 }
