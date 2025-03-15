@@ -3,7 +3,6 @@ package client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import commands.SimpleString;
 import writer.RedisDataWriter;
 import reader.RedisDataReader;
 import redis_socket.RedisSocket;
@@ -194,8 +193,5 @@ public class RedisClient {
         this.executeCommand("HINCRBY", args);
         return this.reader.readInteger();
     }
-
-
-
 
 }
