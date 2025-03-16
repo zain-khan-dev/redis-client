@@ -16,16 +16,21 @@ public class RedisConnectionPool {
     }
 
 
-    private static void instantiateRedisConnection(int size){
+    private static void instantiateRedisConnection(int size, boolean authRequired){
         clients = new LinkedBlockingQueue<>();
         for(int i = 0; i < size; i++){
-            RedisClient client = new RedisClient("127.0.0.1", 6379);
+            RedisClient client = null;
+            if(authRequired){
+                client = new RedisClient("127.0.0.1", 6379, "default", "password");
+            }else{
+                client = new RedisClient("127.0.0.1", 6379);
+            }
             clients.offer(client);
         }
     }
 
     private RedisConnectionPool(int size){
-        instantiateRedisConnection(size);
+        instantiateRedisConnection(size, false);
     }
 
     public static RedisConnectionPool getInstance(){

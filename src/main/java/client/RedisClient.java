@@ -3,6 +3,7 @@ package client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import commands.AuthCommands;
 import commands.HashCommands;
 import commands.ListCommands;
 import commands.SetCommands;
@@ -28,6 +29,8 @@ public class RedisClient {
     private final ListCommands listCommands;
     private final SetCommands setCommands;
     private final HashCommands hashCommands;
+    private final AuthCommands authCommands;
+
 
     public RedisClient(String host, int port){
         this.socket = RedisSocket.getSocketConnection(host, port);
@@ -35,6 +38,15 @@ public class RedisClient {
         this.listCommands = new ListCommands(socket);
         this.setCommands = new SetCommands(socket);
         this.hashCommands = new HashCommands(socket);
+        this.authCommands = new AuthCommands(socket);
+        
+    }
+
+    public RedisClient(String host, int port, String username, String password){
+        this(host, port);
+        if(!this.authCommands.auth(username, password)){
+            throw new RuntimeException("Authentication failed");
+        }
     }
 
 
