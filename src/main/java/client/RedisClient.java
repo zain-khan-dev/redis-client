@@ -51,7 +51,7 @@ public class RedisClient {
 
 
     public void closeConnection(){
-        RedisConnectionPool.returnConnectionToConnectionPool(this);
+        RedisConnectionPool.returnConnectionToPool(this);
     }
 
 
