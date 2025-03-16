@@ -3,9 +3,13 @@ package client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import writer.RedisDataWriter;
-import reader.RedisDataReader;
+import commands.HashCommands;
+import commands.ListCommands;
+import commands.SetCommands;
+import commands.StringCommands;
 import redis_socket.RedisSocket;
+import request.CommandExecutor;
+import response.ResponseReader;
 import serde.RedisSerializer;
 
 import java.net.Socket;
@@ -17,181 +21,132 @@ import java.util.Set;
 public class RedisClient {
 
 
-    enum ListSourceMove {
-        LEFT, 
-        RIGHT
-    }
-
-
     Socket socket = null;
     static final Logger logger = LoggerFactory.getLogger(RedisClient.class);
-    private final RedisDataWriter writer;
-    private final RedisDataReader reader;
+    private final StringCommands stringCommands;
+    private final ListCommands listCommands;
+    private final SetCommands setCommands;
+    private final HashCommands hashCommands;
 
     public RedisClient(String host, int port){
         this.socket = RedisSocket.getSocketConnection(host, port);
-        this.writer = new RedisDataWriter(socket);
-        this.reader = new RedisDataReader(socket);
-    }
-
-    private void executeCommand(String command, List<String>args){
-        String serializedCommand = RedisSerializer.serialize(command, args);
-        this.writer.sendData(serializedCommand);
+        this.stringCommands = new StringCommands(socket);
+        this.listCommands = new ListCommands(socket);
+        this.setCommands = new SetCommands(socket);
+        this.hashCommands = new HashCommands(socket);
     }
 
 
     public String get(String key){
-        this.executeCommand("GET", List.of(key));
-        return reader.readBulkString();
+        return this.stringCommands.get(key);
     }
 
     public String set(String key, String value){
-        this.executeCommand("SET", List.of(key, value));
-        return this.reader.readSimpleString();
+        return this.stringCommands.set(key, value);
     }
 
     public String del(String key){
-        this.executeCommand("DEL", List.of(key));
-        return this.reader.readSimpleString();
+        return this.stringCommands.del(key);
     }
 
     public String mset(Map<String, String>mp){
-        List<String>args = new ArrayList<>();
-        mp.forEach((key, value) -> {args.add(key); args.add(value);});
-        this.executeCommand("MSET", args);
-        return new SimpleString(this.reader, this.writer).mset(mp);
+        return this.stringCommands.mset(mp);
     }
 
     public String mset(List<String>args){
-        this.executeCommand("MSET", args);
-        return this.reader.readSimpleString();
+        return this.stringCommands.mset(args);
     }
 
     public long incr(String key){
-        this.executeCommand("INCR", null);
-        return this.reader.readInteger();
+        return this.stringCommands.incr(key);
     }
 
     // List Operations
 
     public int lpush(String key, List<String>values){
-        List<String>args = new ArrayList<>();
-        args.add(key);
-        args.addAll(values);
-        this.executeCommand("LPUSH", args);
-        return this.reader.readInteger();
+        return this.listCommands.lpush(key, values);
     }
 
     public int rpush(String key, List<String>values){
-        this.executeCommand("RPUSH", values);
-        return this.reader.readInteger();
+        return this.listCommands.rpush(key, values);
     }
 
     public String lpop(String key){
-        this.executeCommand("LPOP", List.of(key));
-        return reader.readSimpleString();
+        return this.listCommands.lpop(key);
     }
     
     public List<String> lpop(String key, int count){
-        this.executeCommand("LPOP", List.of(key, String.valueOf(count)));
-        return reader.readList();
+        return this.listCommands.lpop(key, count);
     }
 
     public List<String> rpop(String key, int count){
-        this.executeCommand("RPOP", List.of(key, String.valueOf(count)));
-        return reader.readList();
+        return this.listCommands.rpop(key, count);
     }
 
     public int llen(String key){
-        this.executeCommand("LLEN", List.of(key));
-        return reader.readInteger();
+        return this.listCommands.llen(key);
     }
 
     public String lmove(String sourceListKey, String destListKey, ListSourceMove sourceMove, ListSourceMove destMove){
-        this.executeCommand("LMOVE", List.of(sourceListKey, destListKey, sourceMove.toString(), destMove.toString()));
-        return reader.readSimpleString();
+        return this.listCommands.lmove(sourceListKey, destListKey, sourceMove, destMove);
     }
 
     public List<String> lrange(String key, int start, int end){
-        this.executeCommand("LRANGE", List.of(key, String.valueOf(start), String.valueOf(end)));
-        return this.reader.readList();
+        return this.listCommands.lrange(key, start, end);
     }
 
     public String ltrim(String key, int start, int stop){
-        this.executeCommand("LTRIM", List.of(key, String.valueOf(start), String.valueOf(stop)));
-        return this.reader.readSimpleString();
+        return this.listCommands.ltrim(key, start, stop);
     }
 
 
     // Set Operations
 
     public int sadd(String key, List<String>members){
-        List<String>args = new ArrayList<>(List.of(key));
-        args.addAll(members);
-        this.executeCommand("SADD", args);
-        return this.reader.readInteger();
+        return this.setCommands.sadd(key, members);
     }
 
     public int sadd(String key, Set<String>members){
-        List<String>args = new ArrayList<>(List.of(key));
-        args.addAll(members);
-        this.executeCommand("SADD", args);
-        return this.reader.readInteger();
+        return this.setCommands.sadd(key, members);
     }
 
     public int srem(String key, List<String>members){
-        List<String>args = new ArrayList<>(List.of(key));
-        args.addAll(members);
-        this.executeCommand("SREM", args);
-        return this.reader.readInteger();
+        return this.setCommands.srem(key, members);
     }
 
     public int srem(String key, Set<String>members){
-        List<String>args = new ArrayList<>(List.of(key));
-        args.addAll(members);
-        this.executeCommand("SREM", args);
-        return this.reader.readInteger();
+        return this.setCommands.srem(key, members);
     }
 
     public boolean sismember(String key, String command){
-        this.executeCommand("SISMEMBER", List.of(key, command));
-        return this.reader.readInteger() == 1;
+        return this.setCommands.sismember(key, command);
     }
 
     public List<String> sinter(List<String>keys){
-        this.executeCommand("SINTER", keys);
-        return this.reader.readList();
+        return this.setCommands.sinter(keys);
     }
 
     public int scard(String key){
-        this.executeCommand("SCARD", List.of(key));
-        return this.reader.readInteger();
+        return this.setCommands.scard(key);
     }
 
     // hash operations
 
     public int hset(String key, String field, String value){
-        this.executeCommand("HSET", List.of(key, field, value));
-        return this.reader.readInteger();
+        return this.hashCommands.hset(key, field, value);
     }
 
     public String hget(String key, String field){
-        this.executeCommand("HSET", List.of(key, field));
-        return this.reader.readBulkString();
+        return this.hashCommands.hget(key, field);
     }
 
     public List<String> hmget(String key, List<String>fields){
-        List<String>args = new ArrayList<>(List.of(key));
-        args.addAll(fields);
-        this.executeCommand("HMGET", args);
-        return this.reader.readList();
+        return this.hashCommands.hmget(key, fields);
     }
 
 
     public int hincrby(String key, String field, int increment){
-        List<String>args = new ArrayList<>(List.of(key, field, String.valueOf(increment)));
-        this.executeCommand("HINCRBY", args);
-        return this.reader.readInteger();
+        return this.hashCommands.hincrby(key, field, increment);
     }
 
 }

@@ -1,15 +1,19 @@
-package writer;
+package request;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.List;
 
-public class RedisDataWriter {
+import serde.RedisSerializer;
+
+public class CommandExecutor {
     private final Socket socket;
 
-    public RedisDataWriter(Socket socket) {
+    public CommandExecutor(Socket socket) {
         this.socket = socket;
     }
+
 
     public void sendData(String data) {
         try {
@@ -19,4 +23,10 @@ public class RedisDataWriter {
             e.printStackTrace();
         }
     }
+
+    public void executeCommand(String command, List<String>args){
+        String serializedCommand = RedisSerializer.serialize(command, args);
+        this.sendData(serializedCommand);
+    }
+    
 }
