@@ -11,7 +11,8 @@ import redis_socket.RedisSocket;
 import request.CommandExecutor;
 import response.ResponseReader;
 import serde.RedisSerializer;
-
+import java.io.IOException;
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,11 @@ public class RedisClient {
         this.listCommands = new ListCommands(socket);
         this.setCommands = new SetCommands(socket);
         this.hashCommands = new HashCommands(socket);
+    }
+
+
+    public void closeConnection(){
+        RedisConnectionPool.returnConnectionToConnectionPool(this);
     }
 
 
@@ -87,7 +93,7 @@ public class RedisClient {
         return this.listCommands.llen(key);
     }
 
-    public String lmove(String sourceListKey, String destListKey, ListSourceMove sourceMove, ListSourceMove destMove){
+    public String lmove(String sourceListKey, String destListKey, ListCommands.ListSourceMove sourceMove, ListCommands.ListSourceMove destMove){
         return this.listCommands.lmove(sourceListKey, destListKey, sourceMove, destMove);
     }
 

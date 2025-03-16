@@ -1,4 +1,4 @@
-package reader;
+package response;
 
 
 import java.net.Socket;
@@ -14,13 +14,13 @@ import java.io.InputStreamReader;
 import serde.RedisDeserializer;
 
 
-public class RedisDataReader {
+public class ResponseReader {
 
 
-    static Logger logger = LoggerFactory.getLogger(RedisDataReader.class);
+    static Logger logger = LoggerFactory.getLogger(ResponseReader.class);
     private Socket socket;
 
-    public RedisDataReader(Socket socket){
+    public ResponseReader(Socket socket){
         this.socket = socket;
     }
 
