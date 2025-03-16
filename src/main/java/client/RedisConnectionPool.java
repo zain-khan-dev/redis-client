@@ -3,18 +3,24 @@ package client;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import config.RedisConfig;
+
 public class RedisConnectionPool {
     private static final BlockingQueue<RedisClient> clients = new LinkedBlockingQueue<>();
-    private final static int CONNECTION_POOL_SIZE = 10;
 
-    // Static block ensures connections are initialized once at class loading
     static {
-        instantiateRedisConnection(CONNECTION_POOL_SIZE);
+        instantiateRedisConnection();
     }
 
-    private static void instantiateRedisConnection(int size) {
-        for (int i = 0; i < size; i++) {
-            clients.offer(new RedisClient("127.0.0.1", 6379));
+    private static void instantiateRedisConnection() {
+        RedisConfig config = RedisConfig.getRedisConfigFromFile();
+
+        for (int i = 0; i < config.getConnectionPoolSize(); i++) {
+            if(config.isAuth()){
+                clients.offer(new RedisClient(config.getHost(), config.getPort(), config.getUsername(), config.getPassword()));
+            }else{
+                clients.offer(new RedisClient(config.getHost(), config.getPort()));
+            }
         }
     }
 

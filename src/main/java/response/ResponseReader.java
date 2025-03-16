@@ -16,7 +16,7 @@ import serde.RedisDeserializer;
 
 public class ResponseReader {
 
-
+    //TODO: Use reading of byte instead of complete line
     static Logger logger = LoggerFactory.getLogger(ResponseReader.class);
     private Socket socket;
 

@@ -11,8 +11,7 @@ public class RedisDeserializer {
         return reader.readLine();
     }
 
-    public static String parseBulkString(BufferedReader reader) throws IOException{
-        int length = Integer.valueOf(reader.readLine()); // consume length
+    public static String parseBulkString(BufferedReader reader) throws IOException{// consume length
         return reader.readLine();
     }
 
